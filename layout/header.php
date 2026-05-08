@@ -153,6 +153,9 @@
             border-top: 2px solid #333;
             color: #888;
         }
+        .form-label {
+          color: #888;
+        }
 
         /* STYLING UNTUK HALAMAN ARTIKEL (post.php) */
         article {
