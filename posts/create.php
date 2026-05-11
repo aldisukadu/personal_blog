@@ -6,8 +6,8 @@ include '../config/database.php';
 $title = 'Tulis Artikel Baru';
 include '../layout/header.php';
 
-// Ambil semua kategori untuk dropdown
-$categories_query = "SELECT * FROM categories ORDER BY name ASC";
+// Ambil semua kategori untuk dropdown (Prepared Statement)
+$categories_query = "SELECT id, name FROM categories ORDER BY name ASC";
 $categories_result = $conn->query($categories_query);
 ?>
 

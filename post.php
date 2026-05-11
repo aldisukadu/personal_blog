@@ -13,10 +13,7 @@ if (!isset($_GET['id'])) {
 $id = $_GET['id'];
 
 // Ambil data artikel berdasarkan ID (Prepared Statement)
-$stmt = $conn->prepare("SELECT posts.id, posts.title, posts.content, posts.created_at, categories.name as category_name
-                        FROM posts
-                        LEFT JOIN categories ON posts.category_id = categories.id
-                        WHERE posts.id = ?");
+$stmt = $conn->prepare("SELECT id, title, content, created_at, category_id FROM posts WHERE id = ?");
 $stmt->bind_param("i", $id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -25,6 +22,19 @@ $post = $result->fetch_assoc();
 if (!$post) {
     echo "<div class='alert alert-danger'>Artikel tidak ditemukan!</div>";
     exit;
+}
+
+// Ambil kategori jika ada
+$category_name = '-';
+if ($post['category_id']) {
+    $cat_stmt = $conn->prepare("SELECT name FROM categories WHERE id = ?");
+    $cat_stmt->bind_param("i", $post['category_id']);
+    $cat_stmt->execute();
+    $cat_result = $cat_stmt->get_result();
+    $cat = $cat_result->fetch_assoc();
+    if ($cat) {
+        $category_name = $cat['name'];
+    }
 }
 
 $title = htmlspecialchars($post['title']);
@@ -45,10 +55,10 @@ include 'layout/header.php';
                         📅 <?php echo date('d F Y', strtotime($post['created_at'])); ?>
                     </span>
                     
-                    <?php if ($post['category_name']): ?>
+                    <?php if ($category_name !== '-'): ?>
                         <span>
-                            <span class="badge">
-                                📂 <?php echo htmlspecialchars($post['category_name']); ?>
+                            <span class=\"badge\">
+                                📂 <?php echo htmlspecialchars($category_name); ?>
                             </span>
                         </span>
                     <?php endif; ?>

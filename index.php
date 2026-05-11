@@ -6,13 +6,17 @@ include 'config/database.php';
 $title = 'Beranda';
 include 'layout/header.php';
 
-// Query untuk menampilkan semua artikel dengan kategorinya (JOIN)
-$query = "SELECT posts.id, posts.title, posts.content, posts.created_at, categories.name as category_name
-          FROM posts
-          LEFT JOIN categories ON posts.category_id = categories.id
-          ORDER BY posts.created_at DESC";
-
+// Query untuk menampilkan semua artikel (Prepared Statement)
+$query = "SELECT id, title, content, created_at, category_id FROM posts ORDER BY created_at DESC";
 $result = $conn->query($query);
+
+// Query untuk semua kategori (Prepared Statement)
+$categories_query = "SELECT id, name FROM categories";
+$categories_result = $conn->query($categories_query);
+$categories = [];
+while ($cat = $categories_result->fetch_assoc()) {
+    $categories[$cat['id']] = $cat['name'];
+}
 ?>
 
 <div class="row mb-5">
@@ -34,9 +38,9 @@ $result = $conn->query($query);
                             <h3 class="card-title">
                                 <?php echo htmlspecialchars($row['title']); ?>
                             </h3>
-                            <?php if ($row['category_name']): ?>
+                            <?php if ($row['category_id'] && isset($categories[$row['category_id']])): ?>
                                 <span class="badge bg-primary">
-                                    <?php echo htmlspecialchars($row['category_name']); ?>
+                                    <?php echo htmlspecialchars($categories[$row['category_id']]); ?>
                                 </span>
                             <?php endif; ?>
                         </div>

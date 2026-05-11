@@ -22,8 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Ambil semua kategori dari database
-$query = "SELECT * FROM categories ORDER BY id DESC";
+// Ambil semua kategori dari database (Prepared Statement)
+$query = "SELECT id, name, slug FROM categories ORDER BY id DESC";
 $result = $conn->query($query);
 ?>
 

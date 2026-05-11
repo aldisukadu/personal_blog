@@ -6,13 +6,17 @@ include '../config/database.php';
 $title = 'Dashboard Artikel';
 include '../layout/header.php';
 
-// Query JOIN untuk menampilkan artikel beserta nama kategorinya
-$query = "SELECT posts.id, posts.title, posts.created_at, categories.name as category_name
-          FROM posts
-          LEFT JOIN categories ON posts.category_id = categories.id
-          ORDER BY posts.created_at DESC";
-
+// Query untuk menampilkan semua artikel (Prepared Statement)
+$query = "SELECT id, title, created_at, category_id FROM posts ORDER BY created_at DESC";
 $result = $conn->query($query);
+
+// Query untuk semua kategori (Prepared Statement)
+$categories_query = "SELECT id, name FROM categories";
+$categories_result = $conn->query($categories_query);
+$categories = [];
+while ($cat = $categories_result->fetch_assoc()) {
+    $categories[$cat['id']] = $cat['name'];
+}
 ?>
 
 <div class="row mb-4">
@@ -47,7 +51,8 @@ $result = $conn->query($query);
                 <tbody>
                     <?php 
                     $no = 1;
-                    while ($row = $result->fetch_assoc()): 
+                    while ($row = $result->fetch_assoc()):
+                        $category_name = ($row['category_id'] && isset($categories[$row['category_id']])) ? $categories[$row['category_id']] : '-'; 
                     ?>
                         <tr>
                             <td><?php echo $no; ?></td>
@@ -55,9 +60,9 @@ $result = $conn->query($query);
                                 <strong><?php echo htmlspecialchars($row['title']); ?></strong>
                             </td>
                             <td>
-                                <?php if ($row['category_name']): ?>
+                                <?php if ($category_name !== '-'): ?>
                                     <span class="badge bg-info">
-                                        <?php echo htmlspecialchars($row['category_name']); ?>
+                                        <?php echo htmlspecialchars($category_name); ?>
                                     </span>
                                 <?php else: ?>
                                     <span class="badge bg-secondary">Tanpa Kategori</span>
