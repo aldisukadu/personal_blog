@@ -1,0 +1,107 @@
+/* ============================================================
+   FILE: assets/style.css
+   FUNGSI: Semua styling kustom untuk Solo Blog
+   File ini di-link dari layout/header.php
+   Bootstrap 5 sudah menangani styling dasar —
+   file ini hanya menambah/menimpa yang perlu dikustom
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   1. GLOBAL / BODY
+   ------------------------------------------------------------ */
+
+/* Flex column agar footer selalu menempel di bawah layar
+   meski konten halaman pendek */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #f8f9fa;
+}
+
+/* main mengisi sisa ruang kosong di antara navbar dan footer */
+main {
+    flex: 1;
+}
+
+
+/* ------------------------------------------------------------
+   2. NAVBAR
+   ------------------------------------------------------------ */
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.4rem;
+    letter-spacing: 0.5px;
+}
+
+/* Tombol "Tulis Artikel" di navbar sedikit lebih bulat */
+.navbar .btn {
+    border-radius: 20px;
+}
+
+
+/* ------------------------------------------------------------
+   3. KARTU ARTIKEL (Halaman Depan)
+   ------------------------------------------------------------ */
+
+/* Efek mengambang saat kartu di-hover */
+.card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ------------------------------------------------------------
+   4. BADGE KATEGORI
+   ------------------------------------------------------------ */
+
+.badge-kategori {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+
+/* ------------------------------------------------------------
+   5. HALAMAN DETAIL ARTIKEL (post.php)
+   ------------------------------------------------------------ */
+
+/* Konten artikel lebih nyaman dibaca */
+.article-content {
+    font-size: 1.1rem;
+    line-height: 1.9;
+    color: #333;
+}
+
+
+/* ------------------------------------------------------------
+   6. TABEL DASHBOARD (posts/index.php)
+   ------------------------------------------------------------ */
+
+/* Baris tabel sedikit lebih tinggi agar tidak sesak */
+.table td,
+.table th {
+    vertical-align: middle;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+
+/* ------------------------------------------------------------
+   7. FOOTER
+   ------------------------------------------------------------ */
+
+footer {
+    margin-top: auto;
+    font-size: 0.875rem;
+}

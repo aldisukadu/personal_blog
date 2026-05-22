@@ -23,34 +23,10 @@
     <!-- Bootstrap 5 CSS dari CDN (tidak perlu download) -->
     <!-- CDN = server luar yang menyimpan file CSS/JS publik -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- CSS tambahan buatan kita sendiri (inline di sini agar simple) -->
-    <style>
-        /* Warna navbar kustom — lebih gelap dari default Bootstrap */
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.4rem;
-        }
-        /* Efek hover pada card artikel di halaman depan */
-        .card:hover {
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-            transition: all 0.2s;
-        }
-        /* Warna badge kategori */
-        .badge-kategori {
-            font-size: 0.75rem;
-        }
-        /* Footer selalu di bawah */
-        body {
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-        main {
-            flex: 1;
-        }
-    </style>
+
+    <!-- CSS kustom kita — harus di BAWAH Bootstrap agar bisa menimpa styling Bootstrap -->
+    <!-- /blogspot/assets/style.css = jalur absolut dari root server -->
+    <link href="/blogspot/assets/style.css" rel="stylesheet">
 </head>
 
 <body>
