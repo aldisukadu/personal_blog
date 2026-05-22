@@ -1,28 +1,39 @@
 <?php
-// File: posts/delete.php
-// Menghapus artikel dari database
+// ============================================================
+// FILE: posts/delete.php
+// FUNGSI: MENGHAPUS satu artikel dari database
+// Dipanggil dari tombol hapus di posts/index.php
+// Menggunakan POST (bukan GET) agar tidak bisa dihapus via URL
+// ============================================================
 
-include '../config/database.php';
+require_once '../config/database.php';
 
-// Cek apakah ID dikirim melalui URL
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    
-    // Gunakan Prepared Statement untuk keamanan
-    $stmt = $conn->prepare("DELETE FROM posts WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    
-    if ($stmt->execute()) {
-        // Redirect kembali ke halaman dashboard
-        header("Location: index.php");
-        exit;
-    } else {
-        // Jika ada error
-        echo "Error: " . $stmt->error;
-    }
-} else {
-    // Jika tidak ada ID, redirect
-    header("Location: index.php");
+// Wajib POST — tolak jika diakses langsung via URL (method GET)
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: /blogspot/posts/index.php");
     exit;
 }
+
+// Ambil ID yang dikirim dari input hidden di form
+$id = (int) ($_POST['id'] ?? 0);
+
+// Jika ID tidak valid (0 atau negatif), tolak
+if ($id <= 0) {
+    header("Location: /blogspot/posts/index.php");
+    exit;
+}
+
+// ---- HAPUS ARTIKEL DARI DATABASE ----
+// DELETE FROM = perintah SQL untuk menghapus baris
+// WHERE id = ? = pastikan hanya baris dengan ID itu yang dihapus
+// TANPA WHERE, SEMUA ARTIKEL AKAN TERHAPUS!
+$stmt = $conn->prepare("DELETE FROM posts WHERE id = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+
+$stmt->close();
+
+// Setelah hapus, kembali ke dashboard
+header("Location: /blogspot/posts/index.php?status=deleted");
+exit;
 ?>

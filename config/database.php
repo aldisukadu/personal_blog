@@ -1,21 +1,23 @@
 <?php
-// Konfigurasi Database
-// File ini adalah pusat koneksi ke database
+// ============================================================
+// FILE: config/database.php
+// FUNGSI: Pusat koneksi ke database MySQL
+// File ini dipanggil di SEMUA halaman yang butuh data
+// ============================================================
 
-$host = 'localhost';
-$user = 'root';
-$password = '';
-$database = 'blog_db';
+// mysqli_connect() adalah fungsi bawaan PHP untuk konek ke MySQL
+// Parameter: (host, username, password, nama_database)
+$conn = mysqli_connect("localhost", "root", "", "blogspot_db");
 
-// Membuat koneksi ke database
-$conn = new mysqli($host, $user, $password, $database);
-
-// Cek apakah koneksi berhasil
-if ($conn->connect_error) {
-    die("Koneksi gagal: " . $conn->connect_error);
+// Cek apakah koneksi berhasil atau tidak
+// mysqli_connect_errno() mengembalikan angka error, jika 0 = sukses
+if (mysqli_connect_errno()) {
+    // Jika gagal, tampilkan pesan error dan hentikan semua proses
+    // die() = hentikan script sekarang juga
+    die("Koneksi database gagal: " . mysqli_connect_error());
 }
 
-// Set charset menjadi UTF-8 agar mendukung karakter Indonesia
-$conn->set_charset("utf8mb4");
+// mysqli_set_charset() memastikan karakter (huruf) tersimpan dengan benar
+// "utf8mb4" mendukung semua karakter termasuk emoji
+mysqli_set_charset($conn, "utf8mb4");
 ?>
-

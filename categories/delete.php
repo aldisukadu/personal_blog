@@ -1,24 +1,35 @@
 <?php
-// File: categories/delete.php
-// Menghapus kategori dari database
+// ============================================================
+// FILE: categories/delete.php
+// FUNGSI: Menghapus satu kategori dari database
+// Catatan: karena pakai ON DELETE SET NULL di database,
+// artikel yang pakai kategori ini TIDAK ikut terhapus,
+// hanya category_id-nya berubah menjadi NULL
+// ============================================================
 
-include '../config/database.php';
+require_once '../config/database.php';
 
-// Cek apakah ID dikirim melalui URL
-if (isset($_GET['id'])) {
-    $id = $_GET['id'];
-    
-    // Gunakan Prepared Statement untuk keamanan
-    $stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
-    $stmt->bind_param("i", $id);
-    
-    if ($stmt->execute()) {
-        // Redirect kembali ke halaman kategori dengan pesan sukses
-        header("Location: index.php");
-        exit;
-    } else {
-        // Jika ada error
-        echo "Error: " . $stmt->error;
-    }
+// Hanya izinkan POST
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header("Location: /blogspot/categories/index.php");
+    exit;
 }
+
+$id = (int) ($_POST['id'] ?? 0);
+
+if ($id <= 0) {
+    header("Location: /blogspot/categories/index.php");
+    exit;
+}
+
+// Hapus kategori
+// Karena FOREIGN KEY di tabel posts memakai ON DELETE SET NULL,
+// maka posts yang punya category_id ini otomatis jadi NULL
+$stmt = $conn->prepare("DELETE FROM categories WHERE id = ?");
+$stmt->bind_param("i", $id);
+$stmt->execute();
+$stmt->close();
+
+header("Location: /blogspot/categories/index.php");
+exit;
 ?>

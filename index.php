@@ -1,79 +1,130 @@
 <?php
-// File: index.php
-// Halaman utama blog - menampilkan daftar artikel untuk pembaca
+// ============================================================
+// FILE: index.php (di root folder blogspot/)
+// FUNGSI: Halaman DEPAN blog — tampilan untuk pembaca
+// Menampilkan semua artikel dalam bentuk Card
+// ============================================================
 
-include 'config/database.php';
-$title = 'Beranda';
+// Muat file koneksi database
+// Jalur ini relatif dari posisi file ini (root blogspot/)
+require_once 'config/database.php';
+
+// Variabel untuk judul tab browser
+// Variabel ini dibaca oleh layout/header.php
+$pageTitle = "Beranda";
+
+// ---- AMBIL DATA SEMUA ARTIKEL ----
+// Kita pakai JOIN untuk menggabungkan tabel posts dan categories
+// Tujuannya: agar nama kategori ikut tampil di setiap kartu artikel
+// LEFT JOIN = ambil semua posts, meski category_id-nya NULL sekalipun
+$sql = "SELECT posts.id, posts.title, posts.content, posts.created_at, 
+               categories.name AS category_name 
+        FROM posts 
+        LEFT JOIN categories ON posts.category_id = categories.id 
+        ORDER BY posts.created_at DESC";
+// ORDER BY created_at DESC = artikel terbaru tampil paling atas
+
+// mysqli_query() = jalankan perintah SQL ke database
+$result = mysqli_query($conn, $sql);
+
+// Pasang header (bagian atas halaman)
 include 'layout/header.php';
-
-// Query untuk menampilkan semua artikel (Prepared Statement)
-$query = "SELECT id, title, content, created_at, category_id FROM posts ORDER BY created_at DESC";
-$result = $conn->query($query);
-
-// Query untuk semua kategori (Prepared Statement)
-$categories_query = "SELECT id, name FROM categories";
-$categories_result = $conn->query($categories_query);
-$categories = [];
-while ($cat = $categories_result->fetch_assoc()) {
-    $categories[$cat['id']] = $cat['name'];
-}
 ?>
 
-<div class="row mb-5">
-    <div class="col-lg-10 mx-auto">
-        <h1 class="display-4">📚 Blog Pribadi Saya</h1>
-        <p class="lead text-muted">Berbagi pengetahuan tentang teknologi, lifestyle, dan tutorial</p>
-        <hr class="my-4">
+<div class="container">
+    
+    <!-- Judul halaman -->
+    <div class="row mb-4">
+        <div class="col">
+            <h2 class="fw-bold">Artikel Terbaru</h2>
+            <!-- Garis bawah dekoratif -->
+            <hr>
+        </div>
     </div>
-</div>
-
-<!-- Daftar Artikel dalam bentuk Card -->
-<div class="row">
-    <div class="col-lg-10 mx-auto">
-        <?php if ($result->num_rows > 0): ?>
-            <?php while ($row = $result->fetch_assoc()): ?>
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start mb-2">
-                            <h3 class="card-title">
-                                <?php echo htmlspecialchars($row['title']); ?>
-                            </h3>
-                            <?php if ($row['category_id'] && isset($categories[$row['category_id']])): ?>
-                                <span class="badge bg-primary">
-                                    <?php echo htmlspecialchars($categories[$row['category_id']]); ?>
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <p class="card-text">
-                            <?php 
-                            // Tampilkan 150 karakter pertama dari konten
-                            $preview = substr($row['content'], 0, 150);
-                            if (strlen($row['content']) > 150) {
-                                $preview .= '...';
-                            }
-                            echo htmlspecialchars($preview);
-                            ?>
-                        </p>
-                        
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="text-muted">
-                                📅 <?php echo date('d F Y', strtotime($row['created_at'])); ?>
-                            </small>
-                            <a href="post.php?id=<?php echo $row['id']; ?>" class="btn btn-primary btn-sm">
-                                Baca Selengkapnya →
-                            </a>
-                        </div>
-                    </div>
+    
+    <!-- Baris untuk menampung kartu-kartu artikel -->
+    <!-- row-cols-md-3 = 3 kolom di layar medium ke atas -->
+    <!-- g-4 = jarak antar kartu (gap) -->
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        
+        <?php
+        // mysqli_num_rows() = hitung berapa baris data yang dikembalikan
+        if (mysqli_num_rows($result) > 0):
+            // Selama masih ada baris data, terus loop
+            // mysqli_fetch_assoc() = ambil satu baris data sebagai array asosiatif
+            // Contoh: $post['title'] = judul artikel
+            while ($post = mysqli_fetch_assoc($result)):
+        ?>
+        
+        <!-- Satu kartu untuk satu artikel -->
+        <div class="col">
+            <!-- h-100 = tinggi kartu menyesuaikan baris -->
+            <div class="card h-100">
+                <div class="card-body">
+                    
+                    <!-- Tampilkan badge kategori jika ada -->
+                    <?php if ($post['category_name']): ?>
+                        <!-- bg-primary = badge biru Bootstrap -->
+                        <span class="badge bg-primary badge-kategori mb-2">
+                            <?= htmlspecialchars($post['category_name']) ?>
+                        </span>
+                    <?php else: ?>
+                        <span class="badge bg-secondary badge-kategori mb-2">Umum</span>
+                    <?php endif; ?>
+                    
+                    <!-- Judul artikel -->
+                    <!-- htmlspecialchars() = cegah XSS, ubah < > & menjadi aman -->
+                    <h5 class="card-title">
+                        <?= htmlspecialchars($post['title']) ?>
+                    </h5>
+                    
+                    <!-- Cuplikan isi artikel (100 karakter pertama) -->
+                    <!-- strip_tags() = hapus semua tag HTML dari konten -->
+                    <!-- substr() = ambil sebagian teks, mulai dari 0, sepanjang 100 karakter -->
+                    <p class="card-text text-muted">
+                        <?= htmlspecialchars(substr(strip_tags($post['content']), 0, 100)) ?>...
+                    </p>
                 </div>
-            <?php endwhile; ?>
-        <?php else: ?>
-            <div class="alert alert-warning" role="alert">
-                <h4 class="alert-heading">Belum ada artikel</h4>
-                <p>Saat ini belum ada artikel yang dipublikasikan. Silakan kunjungi kembali nanti!</p>
+                
+                <div class="card-footer d-flex justify-content-between align-items-center">
+                    <!-- Tanggal artikel -->
+                    <!-- date() = format ulang tanggal -->
+                    <!-- strtotime() = ubah string tanggal jadi format UNIX agar bisa diformat ulang -->
+                    <small class="text-muted">
+                        <?= date('d M Y', strtotime($post['created_at'])) ?>
+                    </small>
+                    
+                    <!-- Tombol baca selengkapnya -->
+                    <!-- Kirim ID artikel sebagai parameter di URL -->
+                    <a href="/blogspot/post.php?id=<?= $post['id'] ?>" 
+                       class="btn btn-sm btn-outline-primary">
+                        Baca Selengkapnya →
+                    </a>
+                </div>
             </div>
+        </div>
+        
+        <?php
+            endwhile; // Akhir loop while
+        else: // Jika tidak ada artikel sama sekali
+        ?>
+        
+        <!-- Pesan jika belum ada artikel -->
+        <div class="col-12">
+            <div class="alert alert-info text-center">
+                <h5>Belum ada artikel.</h5>
+                <a href="/blogspot/posts/create.php" class="btn btn-primary mt-2">
+                    Tulis Artikel Pertama
+                </a>
+            </div>
+        </div>
+        
         <?php endif; ?>
-    </div>
-</div>
+        
+    </div><!-- akhir .row -->
+</div><!-- akhir .container -->
 
-<?php include 'layout/footer.php'; ?>
+<?php
+// Pasang footer (bagian bawah halaman)
+include 'layout/footer.php';
+?>
